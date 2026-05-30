@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CampusCare Wellness Companion</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <section class="auth-screen" id="authScreen">
+      <div class="auth-art">
+        <div class="auth-copy">
+          <p class="eyebrow">CampusCare</p>
+          <h1>Understand your semester before it overwhelms you.</h1>
+          <p>
+            Track mood, habits, journals, and deadlines in one student wellness dashboard.
+          </p>
+        </div>
+      </div>
+
+      <form class="auth-card" id="signinForm">
+        <div class="brand auth-brand">
+          <div class="brand-mark">CC</div>
+          <div>
+            <h1>CampusCare</h1>
+            <p>Student wellness companion</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="eyebrow">Sign in</p>
+          <h2>Continue with your student account</h2>
+          <p>
+            Google sign-in is mocked for this prototype. The screen is ready to connect to
+            Firebase, Supabase, or Google OAuth later.
+          </p>
+        </div>
+
+        <label>
+          Student name
+          <input id="studentName" autocomplete="name" placeholder="Alex Johnson" required />
+        </label>
+
+        <label>
+          Google email
+          <input id="studentEmail" autocomplete="email" type="email" placeholder="alex@university.edu" required />
+        </label>
+
+        <button class="google-action" type="submit">
+          <span class="google-mark">G</span>
+          Continue with Google
+        </button>
+      </form>
+    </section>
+
+    <div class="app-shell hidden" id="appShell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <div class="brand">
+          <div class="brand-mark">CC</div>
+          <div>
+            <h1>CampusCare</h1>
+            <p>Student wellness companion</p>
+          </div>
+        </div>
+
+        <nav class="nav-list" id="navList">
+          <button class="nav-item active" data-view="dashboard" type="button">Dashboard</button>
+          <button class="nav-item" data-view="checkin" type="button">Check-In</button>
+          <button class="nav-item" data-view="journal" type="button">Journal</button>
+          <button class="nav-item" data-view="academics" type="button">Academics</button>
+          <button class="nav-item" data-view="analytics" type="button">Analytics</button>
+          <button class="nav-item" data-view="coach" type="button">Coach</button>
+          <button class="nav-item" data-view="campus" type="button">Campus Hub</button>
+          <button class="nav-item" data-view="report" type="button">Report</button>
+        </nav>
+
+        <div class="sidebar-panel">
+          <span class="eyebrow">Today</span>
+          <strong id="todayLabel">Friday</strong>
+          <p id="sidebarInsight">Log a check-in to unlock your first insight.</p>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section class="topbar" aria-label="Student profile">
+          <div>
+            <p class="eyebrow">Wellness overview</p>
+            <h2 id="viewTitle">Dashboard</h2>
+          </div>
+          <div class="profile-chip">
+            <span class="status-dot"></span>
+            <span id="profileName">Demo student</span>
+            <button class="signout-button" id="signoutButton" type="button">Sign out</button>
+          </div>
+        </section>
+
+        <section class="view active" id="dashboardView" data-title="Dashboard">
+          <div class="hero-grid">
+            <div class="hero-panel">
+              <div>
+                <p class="eyebrow">Mood forecast</p>
+                <h3 id="forecastText">Your next few days look steady.</h3>
+                <p id="forecastDetail">Add sleep, stress, and deadlines to make this smarter.</p>
+              </div>
+              <div class="forecast-meter" aria-label="Forecast risk meter">
+                <div id="forecastNeedle"></div>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <span>Average mood</span>
+              <strong id="avgMood">--</strong>
+              <p>Across recent check-ins</p>
+            </div>
+            <div class="metric-card">
+              <span>Average stress</span>
+              <strong id="avgStress">--</strong>
+              <p>Lower is better</p>
+            </div>
+            <div class="metric-card">
+              <span>Wellness streak</span>
+              <strong id="streakCount">0 days</strong>
+              <p>Daily check-ins</p>
+            </div>
+          </div>
+
+          <div class="content-grid">
+            <article class="panel wide">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Trend</p>
+                  <h3>Mood and stress</h3>
+                </div>
+              </div>
+              <div class="chart" id="trendChart" aria-label="Mood and stress trend chart"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Upcoming</p>
+                  <h3>Academic load</h3>
+                </div>
+              </div>
+              <div class="list" id="deadlineList"></div>
+            </article>
+          </div>

@@ -12,13 +12,11 @@
         <div class="auth-copy">
           <p class="eyebrow">CampusCare</p>
           <h1>Understand your semester before it overwhelms you.</h1>
-          <p>
-            Track mood, habits, journals, and deadlines in one student wellness dashboard.
-          </p>
+          <p>Track mood, habits, journals, and deadlines in one student wellness dashboard.</p>
         </div>
       </div>
 
-      <form class="auth-card" id="signinForm">
+      <div class="auth-card" id="signinPanel">
         <div class="brand auth-brand">
           <div class="brand-mark">CC</div>
           <div>
@@ -30,27 +28,13 @@
         <div>
           <p class="eyebrow">Sign in</p>
           <h2>Continue with your student account</h2>
-          <p>
-            Google sign-in is mocked for this prototype. The screen is ready to connect to
-            Firebase, Supabase, or Google OAuth later.
-          </p>
+          <p>Use your Google account to open your private wellness dashboard.</p>
         </div>
 
-        <label>
-          Student name
-          <input id="studentName" autocomplete="name" placeholder="Alex Johnson" required />
-        </label>
-
-        <label>
-          Google email
-          <input id="studentEmail" autocomplete="email" type="email" placeholder="alex@university.edu" required />
-        </label>
-
-        <button class="google-action" type="submit">
-          <span class="google-mark">G</span>
-          Continue with Google
-        </button>
-      </form>
+        <div class="google-button-slot" id="googleButton"></div>
+        <p class="auth-message" id="authSetupMessage"></p>
+        <button class="secondary-action" id="demoSigninButton" type="button">Use demo sign-in</button>
+      </div>
     </section>
 
     <div class="app-shell hidden" id="appShell">
@@ -145,3 +129,226 @@
               <div class="list" id="deadlineList"></div>
             </article>
           </div>
+
+          <div class="insight-strip" id="insightStrip"></div>
+        </section>
+
+        <section class="view" id="checkinView" data-title="Daily Check-In">
+          <form class="form-layout" id="checkinForm">
+            <div class="panel form-panel">
+              <p class="eyebrow">How are you today?</p>
+              <h3>Daily check-in</h3>
+
+              <label>
+                Mood
+                <input id="moodInput" name="mood" type="range" min="1" max="10" value="7" />
+                <span class="range-value" id="moodValue">7</span>
+              </label>
+
+              <label>
+                Stress
+                <input id="stressInput" name="stress" type="range" min="1" max="10" value="4" />
+                <span class="range-value" id="stressValue">4</span>
+              </label>
+
+              <div class="two-column">
+                <label>
+                  Sleep hours
+                  <input id="sleepInput" name="sleep" type="number" min="0" max="16" step="0.5" value="7.5" />
+                </label>
+                <label>
+                  Study hours
+                  <input id="studyInput" name="study" type="number" min="0" max="18" step="0.5" value="3" />
+                </label>
+              </div>
+
+              <div class="two-column">
+                <label>
+                  Exercise minutes
+                  <input id="exerciseInput" name="exercise" type="number" min="0" max="240" step="5" value="20" />
+                </label>
+                <label>
+                  Water cups
+                  <input id="waterInput" name="water" type="number" min="0" max="20" step="1" value="6" />
+                </label>
+              </div>
+
+              <label>
+                Journal note
+                <textarea id="checkinNote" name="note" rows="5" placeholder="What affected your day?"></textarea>
+              </label>
+
+              <button class="primary-action" type="submit">Save check-in</button>
+            </div>
+
+            <aside class="panel coach-preview">
+              <p class="eyebrow">Personalized suggestion</p>
+              <h3 id="liveCoachTitle">A balanced day is forming.</h3>
+              <p id="liveCoachText">Adjust the sliders and your recommendation will update.</p>
+              <div class="tag-row" id="liveTags"></div>
+            </aside>
+          </form>
+        </section>
+
+        <section class="view" id="journalView" data-title="Journal">
+          <div class="content-grid">
+            <form class="panel form-panel" id="journalForm">
+              <p class="eyebrow">Reflection</p>
+              <h3>New journal entry</h3>
+              <label>
+                Entry
+                <textarea id="journalText" rows="8" placeholder="Write what is on your mind..."></textarea>
+              </label>
+              <button class="primary-action" type="submit">Analyze entry</button>
+            </form>
+            <article class="panel">
+              <p class="eyebrow">Detected themes</p>
+              <h3>Emotion patterns</h3>
+              <div class="tag-cloud" id="themeCloud"></div>
+            </article>
+          </div>
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">History</p>
+                <h3>Recent entries</h3>
+              </div>
+            </div>
+            <div class="journal-list" id="journalList"></div>
+          </div>
+        </section>
+
+        <section class="view" id="academicsView" data-title="Academics">
+          <div class="content-grid">
+            <form class="panel form-panel" id="assignmentForm">
+              <p class="eyebrow">Workload</p>
+              <h3>Add assignment or exam</h3>
+              <label>
+                Title
+                <input id="assignmentTitle" required placeholder="Calculus midterm" />
+              </label>
+              <div class="two-column">
+                <label>
+                  Course
+                  <input id="assignmentCourse" required placeholder="MATH 201" />
+                </label>
+                <label>
+                  Due date
+                  <input id="assignmentDate" required type="date" />
+                </label>
+              </div>
+              <div class="two-column">
+                <label>
+                  Type
+                  <select id="assignmentType">
+                    <option>Exam</option>
+                    <option>Assignment</option>
+                    <option>Project</option>
+                    <option>Quiz</option>
+                    <option>Presentation</option>
+                  </select>
+                </label>
+                <label>
+                  Difficulty
+                  <select id="assignmentDifficulty">
+                    <option value="1">Light</option>
+                    <option value="2">Medium</option>
+                    <option value="3">Heavy</option>
+                  </select>
+                </label>
+              </div>
+              <button class="primary-action" type="submit">Add deadline</button>
+            </form>
+
+            <article class="panel">
+              <p class="eyebrow">Load signal</p>
+              <h3 id="workloadTitle">No heavy week detected.</h3>
+              <p id="workloadText">Add deadlines to compare academic load with stress.</p>
+              <div class="mini-calendar" id="miniCalendar"></div>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Timeline</p>
+                <h3>Assignments and exams</h3>
+              </div>
+            </div>
+            <div class="assignment-list" id="assignmentList"></div>
+          </div>
+        </section>
+
+        <section class="view" id="analyticsView" data-title="Analytics">
+          <div class="analytics-grid">
+            <article class="panel stat-panel">
+              <p class="eyebrow">Sleep to mood</p>
+              <h3 id="sleepMoodInsight">Need more data</h3>
+              <p>Compares mood after 8+ hours of sleep against lower sleep days.</p>
+            </article>
+            <article class="panel stat-panel">
+              <p class="eyebrow">Exercise to stress</p>
+              <h3 id="exerciseStressInsight">Need more data</h3>
+              <p>Checks whether movement days have lower stress.</p>
+            </article>
+            <article class="panel stat-panel">
+              <p class="eyebrow">Deadlines to stress</p>
+              <h3 id="deadlineStressInsight">Need more data</h3>
+              <p>Looks for high-stress weeks with 3+ academic deadlines.</p>
+            </article>
+          </div>
+          <div class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Correlation dashboard</p>
+                <h3>Habit impact</h3>
+              </div>
+            </div>
+            <div class="bar-chart" id="habitBars"></div>
+          </div>
+        </section>
+
+        <section class="view" id="coachView" data-title="AI Wellness Coach">
+          <div class="coach-layout">
+            <article class="panel coach-card">
+              <p class="eyebrow">Coach note</p>
+              <h3 id="coachHeadline">Your coach is ready.</h3>
+              <p id="coachBody">Save a check-in or journal entry to get personalized suggestions.</p>
+              <button class="secondary-action" id="coachRefresh" type="button">Refresh suggestion</button>
+            </article>
+            <article class="panel">
+              <p class="eyebrow">Suggested goal</p>
+              <h3 id="goalTitle">Build a steady baseline</h3>
+              <p id="goalBody">Aim for one check-in and one supportive habit today.</p>
+              <div class="goal-box" id="goalBox">Today's goal: complete a 2-minute reflection.</div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="campusView" data-title="Campus Survival Hub">
+          <div class="resource-grid" id="resourceGrid"></div>
+          <div class="panel crisis-panel">
+            <p class="eyebrow">Immediate support</p>
+            <h3>If there is immediate danger, call emergency services now.</h3>
+            <p>In the U.S., call or text 988 for crisis support. This app is not a medical or emergency service.</p>
+          </div>
+        </section>
+
+        <section class="view" id="reportView" data-title="Semester Report">
+          <div class="report-hero">
+            <p class="eyebrow">Semester wellness report</p>
+            <h3 id="reportTitle">Your report is warming up.</h3>
+            <p id="reportSummary">Add check-ins, journals, and deadlines to generate a stronger recap.</p>
+          </div>
+          <div class="report-grid" id="reportGrid"></div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="config.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="app.js"></script>
+  </body>
+</html>

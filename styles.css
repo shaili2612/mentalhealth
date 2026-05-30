@@ -114,6 +114,19 @@ button {
   align-self: flex-start;
 }
 
+.google-button-slot {
+  min-height: 44px;
+}
+
+.auth-message {
+  min-height: 44px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f7faf8;
+  font-size: 0.92rem;
+}
+
 .google-action {
   display: flex;
   align-items: center;

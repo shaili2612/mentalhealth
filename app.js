@@ -1,5 +1,6 @@
 const STORAGE_KEY = "campuscare-state-v1";
 const USER_KEY = "campuscare-user-v1";
+const GOOGLE_CLIENT_PLACEHOLDER = "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE";
 
 function createId() {
   if (window.crypto && typeof window.crypto.randomUUID === "function") {
@@ -139,7 +140,9 @@ const viewTitle = document.querySelector("#viewTitle");
 const toast = document.querySelector("#toast");
 const authScreen = document.querySelector("#authScreen");
 const appShell = document.querySelector("#appShell");
-const signinForm = document.querySelector("#signinForm");
+const googleButton = document.querySelector("#googleButton");
+const authSetupMessage = document.querySelector("#authSetupMessage");
+const demoSigninButton = document.querySelector("#demoSigninButton");
 const signoutButton = document.querySelector("#signoutButton");
 const profileName = document.querySelector("#profileName");
 
@@ -155,7 +158,7 @@ navItems.forEach((item) => {
   item.addEventListener("click", () => switchView(item.dataset.view));
 });
 
-signinForm.addEventListener("submit", signIn);
+demoSigninButton.addEventListener("click", signInDemo);
 signoutButton.addEventListener("click", signOut);
 
 bindRange("moodInput", "moodValue");
@@ -173,6 +176,7 @@ document.querySelector("#coachRefresh").addEventListener("click", () => {
 render();
 updateLiveCoach();
 updateAuthView();
+initGoogleSignIn();
 
 function loadState() {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -202,11 +206,23 @@ function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function signIn(event) {
-  event.preventDefault();
+function signInDemo() {
   currentUser = {
-    name: document.querySelector("#studentName").value.trim(),
-    email: document.querySelector("#studentEmail").value.trim(),
+    name: "Demo Student",
+    email: "student@university.edu",
+    provider: "demo",
+  };
+
+  localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+  updateAuthView();
+  showToast("Signed in with demo account.");
+}
+
+function signInWithGoogleProfile(profile) {
+  currentUser = {
+    name: profile.name || profile.email || "Student",
+    email: profile.email || "",
+    picture: profile.picture || "",
     provider: "google",
   };
 
@@ -229,6 +245,71 @@ function updateAuthView() {
 
   if (signedIn) {
     profileName.textContent = currentUser.name || currentUser.email || "Student";
+  }
+}
+
+function initGoogleSignIn(attempt = 0) {
+  window.handleGoogleCredentialResponse = (response) => {
+    const profile = parseJwt(response.credential);
+    signInWithGoogleProfile(profile);
+  };
+
+  const clientId = window.CAMPUSCARE_GOOGLE_CLIENT_ID;
+  const isMissingClientId = !clientId || clientId === GOOGLE_CLIENT_PLACEHOLDER;
+  const isFilePage = window.location.protocol === "file:";
+
+  if (isMissingClientId) {
+    authSetupMessage.textContent =
+      "Google sign-in needs a real OAuth Client ID in config.js. Use demo sign-in until that is added.";
+    googleButton.innerHTML = "";
+    return;
+  }
+
+  if (isFilePage) {
+    authSetupMessage.textContent =
+      "Google sign-in must run from http://localhost:5500, not from a file:// page.";
+    googleButton.innerHTML = "";
+    return;
+  }
+
+  if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+    if (attempt < 40) {
+      window.setTimeout(() => initGoogleSignIn(attempt + 1), 150);
+      return;
+    }
+
+    authSetupMessage.textContent =
+      "Google sign-in could not load. Check your internet connection and refresh.";
+    return;
+  }
+
+  authSetupMessage.textContent = "Choose your Google account to continue.";
+  window.google.accounts.id.initialize({
+    client_id: clientId,
+    callback: window.handleGoogleCredentialResponse,
+  });
+  window.google.accounts.id.renderButton(googleButton, {
+    theme: "outline",
+    size: "large",
+    width: 320,
+    text: "continue_with",
+  });
+}
+
+function parseJwt(token) {
+  try {
+    const payload = token.split(".")[1];
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    const json = decodeURIComponent(
+      decoded
+        .split("")
+        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
+        .join(""),
+    );
+
+    return JSON.parse(json);
+  } catch {
+    return {};
   }
 }
 

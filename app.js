@@ -92,47 +92,59 @@ const defaultState = {
   ],
 };
 
+const emptyState = {
+  checkins: [],
+  journals: [],
+  assignments: [],
+};
+
 const resources = [
   {
-    category: "Counseling",
-    name: "University Counseling Center",
-    description: "Short-term counseling, wellness workshops, and referral support.",
-    detail: "Mon-Fri, 8:00 AM-5:00 PM",
+    category: "Health",
+    name: "Rutgers Student Health",
+    description: "Rutgers-New Brunswick student health services, including medical and counseling resources.",
+    detail: "Start here for appointments, wellness services, and student health information.",
+    url: "https://health.rutgers.edu/",
   },
   {
     category: "Emergency",
-    name: "Campus Safety",
-    description: "24/7 help for immediate campus safety concerns.",
-    detail: "Call your campus emergency line",
+    name: "Rutgers Emergency Management",
+    description: "Official Rutgers public safety information for emergencies and campus alerts.",
+    detail: "Use this for emergency procedures and Rutgers safety communications.",
+    url: "https://ipo.rutgers.edu/publicsafety/emergency-management",
   },
   {
     category: "Academic",
-    name: "Tutoring and Writing Center",
-    description: "Peer tutoring, writing reviews, and exam prep sessions.",
-    detail: "Book through the student portal",
+    name: "Rutgers Learning Centers",
+    description: "Free academic support, tutoring, writing help, study groups, and learning resources.",
+    detail: "Good first stop when classes, exams, or assignments start piling up.",
+    url: "https://learningcenters.rutgers.edu/",
   },
   {
     category: "Study",
-    name: "Quiet Study Spaces",
-    description: "Library floors, reservable rooms, and late-night study areas.",
-    detail: "Check availability before finals week",
+    name: "Rutgers Study Space Finder",
+    description: "Find study spaces by campus, amenities, location, and typical availability.",
+    detail: "Useful for choosing a quiet place before exams or group work.",
+    url: "https://webapps.rutgers.edu/study-spaces",
   },
   {
     category: "Community",
-    name: "Student Organizations",
-    description: "Find clubs by interest, identity, major, or recreation.",
-    detail: "Try one low-pressure meeting",
+    name: "Rutgers Student Organizations",
+    description: "Explore Rutgers-New Brunswick clubs, events, involvement opportunities, and student communities.",
+    detail: "Great for finding friends, major-related groups, cultural orgs, and activities.",
+    url: "https://sca.rutgers.edu/campus-involvement/student-organizations",
   },
   {
     category: "Wellness",
-    name: "Recreation Center",
-    description: "Fitness classes, intramurals, swimming, and movement breaks.",
-    detail: "Bring your student ID",
+    name: "Rutgers Recreation",
+    description: "Fitness, recreation programs, movement breaks, sports, and wellness activities.",
+    detail: "Use this when exercise seems connected to better mood or lower stress.",
+    url: "https://recreation.rutgers.edu/",
   },
 ];
 
-let state = loadState();
 let currentUser = loadUser();
+let state = loadState(currentUser);
 
 const views = document.querySelectorAll(".view");
 const navItems = document.querySelectorAll(".nav-item");
@@ -168,6 +180,7 @@ document.querySelector("#checkinForm").addEventListener("input", updateLiveCoach
 document.querySelector("#checkinForm").addEventListener("submit", saveCheckin);
 document.querySelector("#journalForm").addEventListener("submit", saveJournal);
 document.querySelector("#assignmentForm").addEventListener("submit", saveAssignment);
+document.querySelector("#assignmentList").addEventListener("click", handleAssignmentListClick);
 document.querySelector("#coachRefresh").addEventListener("click", () => {
   updateCoach();
   showToast("Coach suggestion refreshed.");
@@ -178,17 +191,33 @@ updateLiveCoach();
 updateAuthView();
 initGoogleSignIn();
 
-function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
+function getAccountStorageKey(user = currentUser) {
+  const accountId = getAccountId(user);
+  return accountId ? `${STORAGE_KEY}:${accountId}` : STORAGE_KEY;
+}
+
+function getAccountId(user) {
+  if (!user) return "";
+  return String(user.accountId || user.email || user.name || "demo").trim().toLowerCase();
+}
+
+function loadState(user = currentUser) {
+  const accountKey = getAccountStorageKey(user);
+  const saved = localStorage.getItem(accountKey);
+
   if (!saved) {
-    return clone(defaultState);
+    return createInitialState(user);
   }
 
   try {
     return JSON.parse(saved);
   } catch {
-    return clone(defaultState);
+    return createInitialState(user);
   }
+}
+
+function createInitialState(user = currentUser) {
+  return user && user.provider === "google" ? clone(emptyState) : clone(defaultState);
 }
 
 function loadUser() {
@@ -203,17 +232,20 @@ function loadUser() {
 }
 
 function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(getAccountStorageKey(), JSON.stringify(state));
 }
 
 function signInDemo() {
   currentUser = {
     name: "Demo Student",
     email: "student@university.edu",
+    accountId: "demo:student@university.edu",
     provider: "demo",
   };
 
   localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+  state = loadState(currentUser);
+  render();
   updateAuthView();
   showToast("Signed in with demo account.");
 }
@@ -223,17 +255,22 @@ function signInWithGoogleProfile(profile) {
     name: profile.name || profile.email || "Student",
     email: profile.email || "",
     picture: profile.picture || "",
+    accountId: profile.sub || profile.email || "",
     provider: "google",
   };
 
   localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+  state = loadState(currentUser);
+  render();
   updateAuthView();
   showToast(`Signed in as ${currentUser.name}.`);
 }
 
 function signOut() {
+  persist();
   currentUser = null;
   localStorage.removeItem(USER_KEY);
+  state = loadState(null);
   updateAuthView();
   showToast("Signed out.");
 }
@@ -415,6 +452,18 @@ function saveAssignment(event) {
   showToast("Deadline added to your academic load.");
 }
 
+function handleAssignmentListClick(event) {
+  const deleteButton = event.target.closest("[data-delete-assignment]");
+  if (!deleteButton) return;
+
+  const assignmentId = deleteButton.dataset.deleteAssignment;
+  const assignment = state.assignments.find((item) => item.id === assignmentId);
+  state.assignments = state.assignments.filter((item) => item.id !== assignmentId);
+  persist();
+  render();
+  showToast(`${assignment ? assignment.title : "Deadline"} deleted.`);
+}
+
 function render() {
   const checkins = sortedCheckins();
   const recent = checkins.slice(-7);
@@ -556,8 +605,11 @@ function renderAssignments() {
         .map(
           (item) => `
             <article class="assignment-item">
-              <strong>${escapeHtml(item.title)}</strong>
-              <p>${escapeHtml(item.course)} - ${item.type} - ${relativeDate(item.dueDate)} - ${difficultyLabel(item.difficulty)}</p>
+              <div>
+                <strong>${escapeHtml(item.title)}</strong>
+                <p>${escapeHtml(item.course)} - ${item.type} - ${relativeDate(item.dueDate)} - ${difficultyLabel(item.difficulty)}</p>
+              </div>
+              <button class="delete-action" data-delete-assignment="${escapeHtml(item.id)}" type="button">Delete</button>
             </article>
           `,
         )
@@ -605,6 +657,7 @@ function renderCampus() {
           <strong>${resource.name}</strong>
           <p>${resource.description}</p>
           <p>${resource.detail}</p>
+          <a class="resource-link" href="${resource.url}" target="_blank" rel="noopener">Open Rutgers resource</a>
         </article>
       `,
     )

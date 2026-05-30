@@ -507,6 +507,13 @@ button {
   background: #fbfcfa;
 }
 
+.assignment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .list-item strong,
 .journal-item strong,
 .assignment-item strong,
@@ -524,6 +531,35 @@ button {
   margin: 0;
   color: var(--muted);
   line-height: 1.45;
+}
+
+.resource-link {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 12px;
+  color: var(--mint-dark);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.resource-link:hover {
+  text-decoration: underline;
+}
+
+.delete-action {
+  flex: 0 0 auto;
+  border: 1px solid #ffd2c7;
+  border-radius: 8px;
+  padding: 9px 11px;
+  color: #8a2f20;
+  background: #fff0ec;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.delete-action:hover {
+  color: white;
+  background: var(--coral);
 }
 
 .insight-strip {
